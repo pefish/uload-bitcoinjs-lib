@@ -30,7 +30,7 @@ Master is not stable; it is our development branch, and [only tagged releases ma
 
 ## Installation
 ``` bash
-npm install bitcoinjs-lib
+npm install uload-bitcoinjs-lib
 ```
 
 ## Setup
