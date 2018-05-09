@@ -11,7 +11,18 @@ module.exports = {
     },
     pubKeyHash: 0x44,
     scriptHash: 0x3f,
-    wif: 0x49
+    wif: 0x80
+  },
+  mainnet: {
+    messagePrefix: '\x18Bitcoin Signed Message:\n',
+    bech32: 'bc',
+    bip32: {
+      public: 0x0488b21e,
+      private: 0x0488ade4
+    },
+    pubKeyHash: 0x44,
+    scriptHash: 0x3f,
+    wif: 0x80
   },
   testnet: {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -22,6 +33,6 @@ module.exports = {
     },
     pubKeyHash: 0x82,
     scriptHash: 0x7d,
-    wif: 0x87
+    wif: 0xef
   }
 }
