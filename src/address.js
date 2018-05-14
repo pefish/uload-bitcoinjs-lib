@@ -87,11 +87,76 @@ function toOutputScript (address, network) {
   throw new Error(address + ' has no matching Script')
 }
 
+function getAddressType (address, network) {
+  let decode
+  try {
+    decode = fromBase58Check(address)
+  } catch (e) {}
+  if (decode && decode.version === network.pubKeyHash) {
+    return 'p2pkh'
+  }
+  if (decode && decode.version === network.scriptHash) {
+    return ['p2sh', 'p2sh(p2wpkh)', 'p2sh(multisig)']
+  }
+  try {
+    decode = fromBech32(address)
+  } catch (e) {}
+  if (decode && decode.version === 0 && decode.data.length === 20) {
+    return 'p2wpkh'
+  }
+  if (decode && decode.version === 0 && decode.data.length === 32) {
+    return 'p2wsh'
+  }
+  return null
+}
+
+function verifyAddressType (address, type, network) {
+  let decode
+  if (type === 'p2pkh') {
+    try {
+      decode = fromBase58Check(address)
+    } catch (e) {}
+    return decode && decode.version === network.pubKeyHash
+  } else if (type === 'p2sh' || type === 'p2sh(p2wpkh)' || type === 'p2sh(multisig)') {
+    try {
+      decode = fromBase58Check(address)
+    } catch (e) {}
+    return decode && decode.version === network.scriptHash
+  } else if (type === 'p2wpkh') {
+    try {
+      decode = fromBech32(address)
+    } catch (e) {}
+
+    if (decode) {
+      if (decode.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
+      if (decode.version === 0) {
+        return decode.data.length === 20
+      }
+    }
+  } else if (type === 'p2wsh') {
+    try {
+      decode = fromBech32(address)
+    } catch (e) {}
+
+    if (decode) {
+      if (decode.prefix !== network.bech32) throw new Error(address + ' has an invalid prefix')
+      if (decode.version === 0) {
+        return decode.data.length === 32
+      }
+    }
+  } else {
+    throw new Error(`${type} type not exists`)
+  }
+  return false
+}
+
 module.exports = {
   fromBase58Check: fromBase58Check,
   fromBech32: fromBech32,
   fromOutputScript: fromOutputScript,
   toBase58Check: toBase58Check,
   toBech32: toBech32,
-  toOutputScript: toOutputScript
+  toOutputScript: toOutputScript,
+  verifyAddressType: verifyAddressType,
+  getAddressType: getAddressType,
 }
